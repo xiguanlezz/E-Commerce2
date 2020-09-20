@@ -18,6 +18,8 @@ import java.io.IOException;
  * FastDFS的工具类:
  * 参考GitHub提供的接口:
  * https://github.com/tobato/FastDFS_Client/blob/master/src/main/java/com/github/tobato/fastdfs/service/FastFileStorageClient.java
+ * <p>
+ * 文件路径: group1/M00/00/00/...
  */
 @Component("fastDFSClient")
 public class FastDFSClientUtil {
@@ -27,9 +29,6 @@ public class FastDFSClientUtil {
 
     /**
      * 上传文件
-     *
-     * @param file 要上传的文件
-     * @return 文件路径
      */
     public String uploadMp3(MultipartFile file) {
         //第一个参数表示文件输入流; 第二个参数表示文件大小; 第三个参数表示文件扩展名; 第四个参数表示文件元数据(描述文件的)
@@ -49,9 +48,6 @@ public class FastDFSClientUtil {
 
     /**
      * 上传文件
-     *
-     * @param file 要上传的文件
-     * @return 文件存储路径(group1 / M00 / 00 / 00 / ...)
      */
     public String uploadFile(MultipartFile file) {
         StorePath storePath = null;
@@ -61,6 +57,7 @@ public class FastDFSClientUtil {
             return storePath.getGroup() + "/" + storePath.getPath();
         } catch (IOException e) {
             e.printStackTrace();
+            //)
             logger.info("上传文件发生错误");
             return "";
         }
@@ -68,9 +65,6 @@ public class FastDFSClientUtil {
 
     /**
      * 上传文件
-     *
-     * @param file 要上传的文件
-     * @return 文件存储路径(group1 / M00 / 00 / 00 / ...)
      */
     public String uploadFile(File file) {
         StorePath storePath = null;
@@ -88,9 +82,6 @@ public class FastDFSClientUtil {
 
     /**
      * 删除文件
-     *
-     * @param filePath 文件路径(group1/M00/00/00/...)
-     * @return 是否删除成功
      */
     public boolean deleteFile(String filePath) {
         if (StringUtils.isBlank(filePath))

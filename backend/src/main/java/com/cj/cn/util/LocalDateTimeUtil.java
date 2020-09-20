@@ -4,14 +4,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class LocalDateTimeUtil {
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     /**
      * LocalDateTime对象转String
-     *
-     * @param localDateTime
-     * @param dateFormat
-     * @return
      */
     public static String dateToStr(LocalDateTime localDateTime, String dateFormat) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
@@ -28,10 +24,6 @@ public class LocalDateTimeUtil {
 
     /**
      * String转LocalDateTime对象
-     *
-     * @param dateTime
-     * @param dateFormat
-     * @return
      */
     public static LocalDateTime strToDate(String dateTime, String dateFormat) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);

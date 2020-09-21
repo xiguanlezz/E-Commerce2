@@ -4,10 +4,15 @@ import com.cj.cn.common.Const;
 import com.cj.cn.pojo.User;
 import com.cj.cn.response.ResultResponse;
 import com.cj.cn.service.IUserService;
+import com.cj.cn.util.CookieUtil;
+import com.cj.cn.util.JsonUtil;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @Api(tags = "用户模块")
@@ -16,6 +21,8 @@ import javax.servlet.http.HttpSession;
 public class UserController {
     @Autowired
     private IUserService iUserService;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @ApiOperation(value = "登录接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前台用户登录接口")
     @ApiImplicitParams({
@@ -25,18 +32,21 @@ public class UserController {
     @PostMapping("login.do")
     public ResultResponse login(@RequestParam("username") String username,
                                 @RequestParam("password") String password,
-                                HttpSession session) {
+                                HttpSession session,
+                                HttpServletResponse httpServletResponse) {
         ResultResponse response = iUserService.login(username, password);
         if (response.isSuccess()) {
-            session.setAttribute(Const.CURRENT_USER, response.getData());   //将用户信息加入session中(取出密码后)
+            User user = (User) response.getData();
+            stringRedisTemplate.opsForValue().set(session.getId(), JsonUtil.objectToJson(user));  //将session放到分布式缓存中
+            CookieUtil.writeLoginToken(httpServletResponse, session.getId());   //将信息写入cookie
         }
         return response;
     }
 
     @ApiOperation(value = "退出接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前台用户退出接口")
     @PostMapping("logout.do")
-    public ResultResponse logout(HttpSession session) {
-        session.removeAttribute(Const.CURRENT_USER);
+    public ResultResponse logout(HttpServletRequest request, HttpServletResponse response) {
+        CookieUtil.delLoginToken(request, response);
         return ResultResponse.ok();
     }
 

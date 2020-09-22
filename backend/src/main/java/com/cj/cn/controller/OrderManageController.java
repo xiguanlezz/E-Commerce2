@@ -6,12 +6,17 @@ import com.cj.cn.response.ResponseCode;
 import com.cj.cn.response.ResultResponse;
 import com.cj.cn.service.IOrderService;
 import com.cj.cn.service.IUserService;
+import com.cj.cn.util.CookieUtil;
+import com.cj.cn.util.JsonUtil;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 @RestController
@@ -21,6 +26,8 @@ public class OrderManageController {
     private IUserService iUserService;
     @Autowired
     private IOrderService iOrderService;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @ApiOperation(value = "后台分页查询订单的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台分页查询订单的信息")
     @ApiImplicitParams({
@@ -30,8 +37,13 @@ public class OrderManageController {
     @GetMapping("list.do")
     public ResultResponse orderList(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
                                     @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-                                    HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                    HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }
@@ -48,8 +60,13 @@ public class OrderManageController {
     @ApiImplicitParam(name = "orderNo", value = "订单号")
     @GetMapping("detail.do")
     public ResultResponse detail(@RequestParam("orderNo") Long orderNo,
-                                 HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                 HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }
@@ -72,8 +89,13 @@ public class OrderManageController {
     public ResultResponse search(@RequestParam("orderNo") Long orderNo,
                                  @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
                                  @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-                                 HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                 HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }
@@ -90,8 +112,13 @@ public class OrderManageController {
     @ApiImplicitParam(name = "orderNo", value = "订单号")
     @PutMapping("send_goods.do")
     public ResultResponse orderSendGoods(@RequestParam("orderNo") Long orderNo,
-                                         HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                         HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }

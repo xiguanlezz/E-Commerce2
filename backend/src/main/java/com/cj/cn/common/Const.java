@@ -12,6 +12,12 @@ public class Const {
     public static final String USERNAME = "username";
     public static final String EMAIL = "email";
 
+    public static final String TOKEN_PREFIX = "token_";
+
+    public interface RedisCacheExpireTime {
+        long REDIS_SESSION_TIME = 60 * 30; //设置session过期时间为30分钟
+    }
+
     public interface ProductListOrderBy {
         //使用哈希集合使得查询效率为O(1)
         Set<String> PRICE_ASC_DESC = Sets.newHashSet("price_desc", "price_asc");

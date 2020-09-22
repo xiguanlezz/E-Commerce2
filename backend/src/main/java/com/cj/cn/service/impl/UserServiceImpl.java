@@ -1,26 +1,28 @@
 package com.cj.cn.service.impl;
 
 import com.cj.cn.common.Const;
-import com.cj.cn.common.TokenCache;
 import com.cj.cn.pojo.User;
 import com.cj.cn.mapper.UserMapper;
 import com.cj.cn.response.ResultResponse;
 import com.cj.cn.service.IUserService;
 import com.cj.cn.util.MD5Util;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service("iUserService")
 public class UserServiceImpl implements IUserService {
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public ResultResponse login(String username, String password) {
@@ -106,7 +108,8 @@ public class UserServiceImpl implements IUserService {
         Integer result = userMapper.checkAnswer(username, question, answer);
         if (result > 0) {
             String forgetToken = UUID.randomUUID().toString();    //密保问题回答正确后会重新设置token并返回
-            TokenCache.setKey("token_" + username, forgetToken);
+            //忘记密码的token从本地缓存迁移到Redis中
+            stringRedisTemplate.opsForValue().set(Const.TOKEN_PREFIX + username, forgetToken, 12, TimeUnit.HOURS);
             return ResultResponse.ok(forgetToken);
         } else {
             return ResultResponse.error("问题错误或者答案错误");
@@ -123,7 +126,8 @@ public class UserServiceImpl implements IUserService {
             return ResultResponse.error(response.getMsg());
         }
 
-        String token = TokenCache.getKey("token_" + username);
+        //忘记密码的token从本地缓存迁移到Redis中
+        String token = stringRedisTemplate.opsForValue().get(Const.TOKEN_PREFIX + username);
         if (StringUtils.equals(forgetToken, token)) {
             String md5Password = MD5Util.MD5EncodeUtf8(password);
             int rowCount = userMapper.updatePasswordByUsername(username, password);

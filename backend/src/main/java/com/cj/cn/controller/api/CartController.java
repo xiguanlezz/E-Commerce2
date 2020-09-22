@@ -5,13 +5,18 @@ import com.cj.cn.pojo.User;
 import com.cj.cn.response.ResponseCode;
 import com.cj.cn.response.ResultResponse;
 import com.cj.cn.service.ICartService;
+import com.cj.cn.util.CookieUtil;
+import com.cj.cn.util.JsonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 @Api(tags = "购物车模块")
@@ -20,11 +25,18 @@ import javax.servlet.http.HttpSession;
 public class CartController {
     @Autowired
     private ICartService iCartService;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @ApiOperation(value = "增加一个地址的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;新增一个地址")
     @GetMapping("list.do")
-    public ResultResponse list(HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+    public ResultResponse list(HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
@@ -39,8 +51,13 @@ public class CartController {
     @PostMapping("add.do")
     public ResultResponse add(@RequestParam("productId") Integer productId,
                               @RequestParam("count") Integer count,
-                              HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                              HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
@@ -55,8 +72,13 @@ public class CartController {
     @PutMapping("update.do")
     public ResultResponse update(@RequestParam("productId") Integer productId,
                                  @RequestParam("count") Integer count,
-                                 HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                 HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
@@ -67,8 +89,13 @@ public class CartController {
     @ApiImplicitParam(name = "productIds", value = "产品数组, 用逗号分隔")
     @DeleteMapping("delete_product.do")
     public ResultResponse deleteProduct(@RequestParam("productIds") String productIds,
-                                        HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                        HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
@@ -77,8 +104,13 @@ public class CartController {
 
     @ApiOperation(value = "全选用户的购物车中所有产品的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;全选用户的购物车中的所有产品")
     @PutMapping("select_all.do")
-    public ResultResponse selectAll(HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+    public ResultResponse selectAll(HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
@@ -87,8 +119,13 @@ public class CartController {
 
     @ApiOperation(value = "全反选用户的购物车中所有产品的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;全反选用户的购物车中所有产品的接口")
     @PutMapping("un_select_all.do")
-    public ResultResponse unSelectAll(HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+    public ResultResponse unSelectAll(HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
@@ -99,8 +136,13 @@ public class CartController {
     @ApiImplicitParam(name = "productId", value = "要选中产品的id")
     @PutMapping("select.do")
     public ResultResponse select(@RequestParam("productId") Integer productId,
-                                 HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                 HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
@@ -111,8 +153,13 @@ public class CartController {
     @ApiImplicitParam(name = "productId", value = "要取消选中产品的id")
     @PutMapping("un_select.do")
     public ResultResponse unSelect(@RequestParam("productId") Integer productId,
-                                   HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                   HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
@@ -121,8 +168,13 @@ public class CartController {
 
     @ApiOperation(value = "得到用户购物车中产品总数量的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;计算用户购物车中所有产品的总数量")
     @GetMapping("get_cart_product_count.do")
-    public ResultResponse getCartProductCount(HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+    public ResultResponse getCartProductCount(HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.ok(0);
         }

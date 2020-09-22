@@ -26,7 +26,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title("mmall电商项目API接口")
                 .contact(contact)
-                .version("1.1.0")
+                .version("2.1.0")
                 .build();
     }
 }

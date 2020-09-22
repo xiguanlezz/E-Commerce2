@@ -7,6 +7,7 @@ import com.cj.cn.service.IUserService;
 import com.cj.cn.util.CookieUtil;
 import com.cj.cn.util.JsonUtil;
 import io.swagger.annotations.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.concurrent.TimeUnit;
 
 @Api(tags = "用户模块")
 @RestController
@@ -29,7 +31,7 @@ public class UserController {
             @ApiImplicitParam(name = "username", value = "用户名", paramType = "query"),
             @ApiImplicitParam(name = "password", value = "密码", paramType = "query")
     })
-    @PostMapping("login.do")
+    @RequestMapping("login.do")
     public ResultResponse login(@RequestParam("username") String username,
                                 @RequestParam("password") String password,
                                 HttpSession session,
@@ -37,16 +39,22 @@ public class UserController {
         ResultResponse response = iUserService.login(username, password);
         if (response.isSuccess()) {
             User user = (User) response.getData();
-            stringRedisTemplate.opsForValue().set(session.getId(), JsonUtil.objectToJson(user));  //将session放到分布式缓存中
+            //将session放到分布式缓存中
+            stringRedisTemplate.opsForValue().set(session.getId(), JsonUtil.objectToJson(user), Const.RedisCacheExpireTime.REDIS_SESSION_TIME, TimeUnit.SECONDS);
             CookieUtil.writeLoginToken(httpServletResponse, session.getId());   //将信息写入cookie
         }
         return response;
     }
 
     @ApiOperation(value = "退出接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前台用户退出接口")
-    @PostMapping("logout.do")
-    public ResultResponse logout(HttpServletRequest request, HttpServletResponse response) {
-        CookieUtil.delLoginToken(request, response);
+    @RequestMapping("logout.do")
+    public ResultResponse logout(HttpServletRequest httpServletRequest,
+                                 HttpServletResponse httpServletResponse) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(loginToken)) {
+            stringRedisTemplate.delete(loginToken); //从分布式缓存中删除session信息
+            CookieUtil.delLoginToken(httpServletRequest, httpServletResponse);    //设置cookie有效期为0即删除cookie
+        }
         return ResultResponse.ok();
     }
 
@@ -72,13 +80,19 @@ public class UserController {
     }
 
     @ApiOperation(value = "登录状态下获取当前用户信息接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前台已登录用户获取自己的用户信息")
-    @PostMapping("get_information.do")
-    public ResultResponse getUserInfo(HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+    @RequestMapping("get_information.do")
+    public ResultResponse getUserInfo(HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 无法获取当前用户的信息");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user != null) {
             return ResultResponse.ok(user);
         }
         return ResultResponse.error("用户未登录, 无法获取当前用户的信息");
+
     }
 
     @ApiOperation(value = "获取密保问题接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前台用户根据用户名查询对应的密保问题")
@@ -94,7 +108,7 @@ public class UserController {
             @ApiImplicitParam(name = "question", value = "密保问题", paramType = "query"),
             @ApiImplicitParam(name = "answer", value = "密保问题的答案", paramType = "query")
     })
-    @PostMapping("forget_check_answer.do")
+    @RequestMapping("forget_check_answer.do")
     public ResultResponse forgetCheckAnswer(@RequestParam("username") String username,
                                             @RequestParam("question") String question,
                                             @RequestParam("answer") String answer) {
@@ -122,8 +136,13 @@ public class UserController {
     @PostMapping("reset_password.do")
     public ResultResponse resetPassword(@RequestParam("passwordOld") String passwordOld,
                                         @RequestParam("passwordNew") String passwordNew,
-                                        HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                        HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 无法获取当前用户的信息");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error("用户未登录");
         }
@@ -132,8 +151,14 @@ public class UserController {
 
     @ApiOperation(value = "登录状态下更新用户信息的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前台用户中心更新用户基本信息")
     @PostMapping("update_information.do")
-    public ResultResponse updateInformation(User user, HttpSession session) {
-        User u = (User) session.getAttribute(Const.CURRENT_USER);
+    public ResultResponse updateInformation(User user,
+                                            HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User u = JsonUtil.jsonToObject(userJson, User.class);
         if (u == null) {
             return ResultResponse.error("用户未登录");
         }

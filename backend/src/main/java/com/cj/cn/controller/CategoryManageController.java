@@ -1,22 +1,25 @@
 package com.cj.cn.controller;
 
-import com.cj.cn.common.Const;
 import com.cj.cn.pojo.User;
 import com.cj.cn.response.ResponseCode;
 import com.cj.cn.response.ResultResponse;
 import com.cj.cn.service.ICategoryService;
 import com.cj.cn.service.IUserService;
+import com.cj.cn.util.CookieUtil;
+import com.cj.cn.util.JsonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 
 @Api(tags = "后台品类模块")
 @RestController
@@ -26,6 +29,8 @@ public class CategoryManageController {
     private IUserService iUserService;
     @Autowired
     private ICategoryService iCategoryService;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @ApiOperation(value = "添加品类接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台添加一个品类的接口")
     @ApiImplicitParams({
@@ -35,8 +40,13 @@ public class CategoryManageController {
     @PostMapping("add_category.do")
     public ResultResponse addCategory(@RequestParam("categoryName") String categoryName,
                                       @RequestParam(value = "parentId", defaultValue = "0") int parentId,
-                                      HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                      HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }
@@ -57,8 +67,13 @@ public class CategoryManageController {
     @PostMapping("set_category_name.do")
     public ResultResponse setCategoryName(@RequestParam("categoryId") Integer categoryId,
                                           @RequestParam("categoryName") String categoryName,
-                                          HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                          HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }
@@ -74,8 +89,13 @@ public class CategoryManageController {
     @ApiImplicitParam(name = "parentId", value = "品类id")
     @PostMapping("get_category.do")
     public ResultResponse getParallelChildrenCategory(@RequestParam(value = "parentId", defaultValue = "0") Integer categoryId,
-                                                      HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                                      HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }
@@ -92,8 +112,13 @@ public class CategoryManageController {
     @ApiImplicitParam(name = "parentId", value = "品类id")
     @PostMapping("get_deep_category.do")
     public ResultResponse getDeepChildrenCategory(@RequestParam(value = "parentId", defaultValue = "0") Integer categoryId,
-                                                  HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                                  HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }

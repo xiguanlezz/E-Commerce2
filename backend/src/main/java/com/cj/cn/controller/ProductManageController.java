@@ -7,15 +7,21 @@ import com.cj.cn.response.ResponseCode;
 import com.cj.cn.response.ResultResponse;
 import com.cj.cn.service.IProductService;
 import com.cj.cn.service.IUserService;
+import com.cj.cn.util.CookieUtil;
 import com.cj.cn.util.FastDFSClientUtil;
+import com.cj.cn.util.JsonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
@@ -31,11 +37,19 @@ public class ProductManageController {
     private IProductService iProductService;
     @Autowired
     private FastDFSClientUtil fastDFSClient;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @ApiOperation(value = "新增产品和更新产品信息的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台新增产品和更新产品信息的统一接口")
     @PostMapping("save.do")
-    public ResultResponse productSave(Product product, HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+    public ResultResponse productSave(Product product,
+                                      HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }
@@ -55,8 +69,13 @@ public class ProductManageController {
     @PostMapping("set_sale_status.do")
     public ResultResponse setSaleStatus(@RequestParam("productId") Integer productId,
                                         @RequestParam("status") Integer status,
-                                        HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                        HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }
@@ -72,8 +91,13 @@ public class ProductManageController {
     @ApiImplicitParam(name = "productId", value = "商品id")
     @PostMapping("detail.do")
     public ResultResponse getDetail(@RequestParam("productId") Integer productId,
-                                    HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                    HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }
@@ -93,8 +117,13 @@ public class ProductManageController {
     @PostMapping("list.do")
     public ResultResponse getList(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
                                   @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-                                  HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                  HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }
@@ -118,8 +147,13 @@ public class ProductManageController {
                                         @RequestParam(value = "productId", required = false) Integer productId,
                                         @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
                                         @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-                                        HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                        HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error("用户未登录");
         }
@@ -135,8 +169,13 @@ public class ProductManageController {
     @ApiImplicitParam(name = "upload_file", value = "待上传的图片文件")
     @PostMapping("upload.do")
     public ResultResponse upload(@RequestParam(value = "upload_file") MultipartFile file,
-                                 HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                 HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }
@@ -156,8 +195,13 @@ public class ProductManageController {
     @ApiImplicitParam(name = "upload_file", value = "待上传的图片文件")
     @DeleteMapping("unUpload.do")
     public ResultResponse unUpload(@RequestParam(value = "filePath") String path,
-                                   HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+                                   HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            return ResultResponse.error("用户未登录, 请登录");
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
         if (user == null) {
             return ResultResponse.error(ResponseCode.NEED_LOGIN.getCode(), "用户未登录, 请登录");
         }
@@ -174,10 +218,18 @@ public class ProductManageController {
     @ApiImplicitParam(name = "upload_file", value = "待上传的图片文件")
     @PostMapping("richtext_img_upload.do")
     public Map<String, Object> richtextImgUpload(@RequestParam(value = "upload_file") MultipartFile file,
-                                                 HttpServletResponse response,
-                                                 HttpSession session) {
+                                                 HttpServletRequest httpServletRequest,
+                                                 HttpServletResponse httpServletResponse) {
         Map<String, Object> resultMap = new HashMap<>();
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isBlank(loginToken)) {
+            resultMap.put("success", false);
+            resultMap.put("msg", "用户未登录, 请登录");
+            return resultMap;
+        }
+        String userJson = stringRedisTemplate.opsForValue().get(loginToken);
+        User user = JsonUtil.jsonToObject(userJson, User.class);
+
         if (user == null) {
             resultMap.put("success", false);
             resultMap.put("msg", "用户未登录, 请登录");
@@ -194,7 +246,7 @@ public class ProductManageController {
                 resultMap.put("success", true);
                 resultMap.put("msg", "上传成功");
                 resultMap.put("file_path", path);
-                response.addHeader("Access-Control-Allow-Headers", "X-File-Name");
+                httpServletResponse.addHeader("Access-Control-Allow-Headers", "X-File-Name");
             }
         } else {
             resultMap.put("success", false);

@@ -31,6 +31,7 @@ public class CookieUtil {
         Cookie ck = new Cookie(COOKIE_NAME, token);
         ck.setDomain(COOKIE_DOMAIN);
         ck.setPath("/");    //代表设置在根目录
+        ck.setHttpOnly(true);   //防止一些脚本攻击
 
         //单位是秒
         ck.setMaxAge(60 * 60 * 24 * 365);  //如果是-1, 代表永久

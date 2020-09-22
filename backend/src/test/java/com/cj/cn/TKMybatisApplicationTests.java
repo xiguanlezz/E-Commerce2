@@ -1,6 +1,5 @@
 package com.cj.cn;
 
-import com.cj.cn.mapper.TestMapper;
 import com.cj.cn.pojo.User;
 import com.cj.cn.mapper.UserMapper;
 import org.junit.Test;
@@ -20,9 +19,6 @@ public class TKMybatisApplicationTests {
 
     @Autowired
     private UserMapper userMapper;
-    @Autowired
-    private TestMapper testMapper;
-
 
     public TKMybatisApplicationTests() {
     }
@@ -116,15 +112,5 @@ public class TKMybatisApplicationTests {
         for (User user : users) {
             System.out.println(user);
         }
-    }
-
-    @Test
-    public void test() {
-        List<User> list = new ArrayList<>();
-        list.add(new User().setId(24).setUsername("user11").setEmail("user11@qq.com"));
-        list.add(new User().setId(25).setUsername("user22").setEmail("user22@qq.com"));
-        list.add(new User().setId(26).setUsername("user33").setEmail("user33@qq.com"));
-        list.add(new User().setId(27).setUsername("user44").setEmail("user44@qq.com"));
-        testMapper.batchUpdate(list);
     }
 }

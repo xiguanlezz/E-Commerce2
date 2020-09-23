@@ -2,6 +2,7 @@ package com.cj.cn.exception;
 
 import com.cj.cn.response.ResponseCode;
 import com.cj.cn.response.ResultResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,11 +16,13 @@ import java.util.List;
 /**
  * ControllerAdvice注解只能用于处理全局异常信息, 和普通控制器不同
  */
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler(value = Exception.class)
     public Object handleErrors(Exception e) {
+        log.info("error", e);
         if (e instanceof BindException) {
             return ResultResponse.error(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         } else if (e instanceof MethodArgumentNotValidException) {

@@ -1,6 +1,5 @@
 package com.cj.cn.controller.api;
 
-import com.cj.cn.common.Const;
 import com.cj.cn.pojo.Shipping;
 import com.cj.cn.pojo.User;
 import com.cj.cn.response.ResultResponse;
@@ -17,7 +16,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 @Api(tags = "收货地址模块")
 @RestController

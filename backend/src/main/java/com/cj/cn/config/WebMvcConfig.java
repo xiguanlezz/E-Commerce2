@@ -1,5 +1,7 @@
 package com.cj.cn.config;
 
+import com.cj.cn.config.interceptor.AuthorityInterceptor;
+import com.cj.cn.config.interceptor.LoginInterceptor;
 import com.cj.cn.config.interceptor.SessionExpireInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +26,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://127.0.0.1", "http://localhost")
                 .allowedOrigins("http://127.0.0.1:8088", "http://localhost:8088")
                 .allowedOrigins("http://127.0.0.1:8086", "http://localhost:8086")
+                .allowedOrigins("http://www.mmall.com")
                 .allowedMethods("*")
                 .maxAge(3600);
     }
@@ -39,10 +42,32 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        //登录拦截器(暂时不用)
+//        registry.addInterceptor(loginInterceptor())
+//                .addPathPatterns("/**");
+
+        //权限拦截器
+        registry.addInterceptor(authorityInterceptor())
+                .addPathPatterns("/manage/**");
+
+        //重置session拦截器
+        String[] excludePatterns = new String[]{"/user/login*", "/manage/user/login*", "/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**",
+                "/api", "/api-docs", "/api-docs/**"};
         registry.addInterceptor(sessionExpireInterceptor())     //不要使用new出来的拦截器, 因为拦截器加载于IOC之前
                 .addPathPatterns("/**")
-                .excludePathPatterns("/user/login*", "/manage/user/login*");
+                .excludePathPatterns(excludePatterns);
     }
+
+    @Bean
+    public HandlerInterceptor loginInterceptor() {
+        return new LoginInterceptor();
+    }
+
+    @Bean
+    public HandlerInterceptor authorityInterceptor() {
+        return new AuthorityInterceptor();
+    }
+
 
     @Bean
     public HandlerInterceptor sessionExpireInterceptor() {

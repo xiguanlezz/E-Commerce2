@@ -38,7 +38,7 @@ public class ProductManageController {
     private StringRedisTemplate stringRedisTemplate;
 
     @ApiOperation(value = "新增产品和更新产品信息的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台新增产品和更新产品信息的统一接口")
-    @PostMapping("save.do")
+    @PostMapping("/save.do")
     public ResultResponse productSave(Product product) {
         //权限验证全交给拦截器执行
         return iProductService.saveOrUpdateProduct(product);
@@ -46,10 +46,10 @@ public class ProductManageController {
 
     @ApiOperation(value = "上下架产品的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台上架下架商品的接口")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "productId", value = "产品id"),
-            @ApiImplicitParam(name = "status", value = "要设置的产品状态")
+            @ApiImplicitParam(name = "productId", value = "产品id", paramType = "query"),
+            @ApiImplicitParam(name = "status", value = "要设置的产品状态", paramType = "query")
     })
-    @PostMapping("set_sale_status.do")
+    @PutMapping("/set_sale_status.do")
     public ResultResponse setSaleStatus(@RequestParam("productId") Integer productId,
                                         @RequestParam("status") Integer status) {
         //权限验证全交给拦截器执行
@@ -57,19 +57,19 @@ public class ProductManageController {
     }
 
     @ApiOperation(value = "查看商品详情接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台查看商品详情(上架状态、下架状态都可看到)")
-    @ApiImplicitParam(name = "productId", value = "商品id")
-    @PostMapping("detail.do")
-    public ResultResponse getDetail(@RequestParam("productId") Integer productId) {
+    @ApiImplicitParam(name = "productId", value = "商品id", paramType = "path")
+    @GetMapping("/{productId}")
+    public ResultResponse getDetail(@PathVariable("productId") Integer productId) {
         //权限验证全交给拦截器执行
         return iProductService.getManageProductDetail(productId);
     }
 
     @ApiOperation(value = "查看商品列表接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台分页查看商品列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", value = "当前页"),
-            @ApiImplicitParam(name = "pageSize", value = "页容量")
+            @ApiImplicitParam(name = "pageNum", value = "当前页", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query")
     })
-    @RequestMapping("list.do")
+    @GetMapping("/list.do")
     public ResultResponse getList(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
                                   @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         //权限验证全交给拦截器执行
@@ -79,12 +79,12 @@ public class ProductManageController {
 
     @ApiOperation(value = "搜索产品接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台分页查看商品列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "productName", value = "产品名"),
-            @ApiImplicitParam(name = "productId", value = "产品id"),
-            @ApiImplicitParam(name = "pageNum", value = "当前页"),
-            @ApiImplicitParam(name = "pageSize", value = "页容量")
+            @ApiImplicitParam(name = "productName", value = "产品名", paramType = "query"),
+            @ApiImplicitParam(name = "productId", value = "产品id", paramType = "query"),
+            @ApiImplicitParam(name = "pageNum", value = "当前页", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query")
     })
-    @PostMapping("search.do")
+    @GetMapping("/search.do")
     public ResultResponse productSearch(@RequestParam(value = "productName", defaultValue = "") String productName,
                                         @RequestParam(value = "productId", required = false) Integer productId,
                                         @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
@@ -94,7 +94,7 @@ public class ProductManageController {
     }
 
     @ApiOperation(value = "上传图片接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台上传产品图片到服务器")
-    @ApiImplicitParam(name = "upload_file", value = "待上传的图片文件")
+    @ApiImplicitParam(name = "upload_file", value = "待上传的图片文件", paramType = "query")
     @PostMapping("upload.do")
     public ResultResponse upload(@RequestParam(value = "upload_file") MultipartFile file) {
         //权限验证全交给拦截器执行
@@ -107,7 +107,7 @@ public class ProductManageController {
     }
 
     @ApiOperation(value = "删除图片接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台上传产品图片到服务器")
-    @ApiImplicitParam(name = "upload_file", value = "待上传的图片文件")
+    @ApiImplicitParam(name = "upload_file", value = "待上传的图片文件", paramType = "query")
     @DeleteMapping("unUpload.do")
     public ResultResponse unUpload(@RequestParam(value = "filePath") String path,
                                    HttpServletRequest httpServletRequest) {
@@ -130,7 +130,7 @@ public class ProductManageController {
     }
 
     @ApiOperation(value = "富文本中图片上传接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台富文本中图片上传到服务器")
-    @ApiImplicitParam(name = "upload_file", value = "待上传的图片文件")
+    @ApiImplicitParam(name = "upload_file", value = "待上传的图片文件", paramType = "query")
     @PostMapping("richtext_img_upload.do")
     public Map<String, Object> richtextImgUpload(@RequestParam(value = "upload_file") MultipartFile file,
                                                  HttpServletResponse httpServletResponse) {

@@ -28,7 +28,7 @@ public class CartController {
     private StringRedisTemplate stringRedisTemplate;
 
     @ApiOperation(value = "增加一个地址的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;新增一个地址")
-    @GetMapping("list.do")
+    @GetMapping("/list.do")
     public ResultResponse list(HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
         if (StringUtils.isBlank(loginToken)) {
@@ -44,10 +44,10 @@ public class CartController {
 
     @ApiOperation(value = "往购物车中增加产品的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;往购物车中增加指定数量的产品")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "productId", value = "产品id"),
-            @ApiImplicitParam(name = "count", value = "要增加的产品数量")
+            @ApiImplicitParam(name = "productId", value = "产品id", paramType = "query"),
+            @ApiImplicitParam(name = "count", value = "要增加的产品数量", paramType = "query")
     })
-    @PostMapping("add.do")
+    @PostMapping("/add.do")
     public ResultResponse add(@RequestParam("productId") Integer productId,
                               @RequestParam("count") Integer count,
                               HttpServletRequest httpServletRequest) {
@@ -65,10 +65,10 @@ public class CartController {
 
     @ApiOperation(value = "更新购物车中产品数量的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;更新购物车中产品的数量为指定值")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "productId", value = "产品id"),
-            @ApiImplicitParam(name = "count", value = "新的产品数量")
+            @ApiImplicitParam(name = "productId", value = "产品id", paramType = "query"),
+            @ApiImplicitParam(name = "count", value = "新的产品数量", paramType = "query")
     })
-    @PutMapping("update.do")
+    @PutMapping("/update.do")
     public ResultResponse update(@RequestParam("productId") Integer productId,
                                  @RequestParam("count") Integer count,
                                  HttpServletRequest httpServletRequest) {
@@ -85,8 +85,8 @@ public class CartController {
     }
 
     @ApiOperation(value = "删除购物车中产品的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;根据传入的id字符串批量删除购物车中的产品")
-    @ApiImplicitParam(name = "productIds", value = "产品数组, 用逗号分隔")
-    @DeleteMapping("delete_product.do")
+    @ApiImplicitParam(name = "productIds", value = "产品数组, 用逗号分隔", paramType = "query")
+    @DeleteMapping("/delete_product.do")
     public ResultResponse deleteProduct(@RequestParam("productIds") String productIds,
                                         HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
@@ -102,7 +102,7 @@ public class CartController {
     }
 
     @ApiOperation(value = "全选用户的购物车中所有产品的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;全选用户的购物车中的所有产品")
-    @PutMapping("select_all.do")
+    @PutMapping("/select_all.do")
     public ResultResponse selectAll(HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
         if (StringUtils.isBlank(loginToken)) {
@@ -117,7 +117,7 @@ public class CartController {
     }
 
     @ApiOperation(value = "全反选用户的购物车中所有产品的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;全反选用户的购物车中所有产品的接口")
-    @PutMapping("un_select_all.do")
+    @PutMapping("/un_select_all.do")
     public ResultResponse unSelectAll(HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
         if (StringUtils.isBlank(loginToken)) {
@@ -132,8 +132,8 @@ public class CartController {
     }
 
     @ApiOperation(value = "选中用户购物车中的某种产品的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;选中用户购物车中的某种产品")
-    @ApiImplicitParam(name = "productId", value = "要选中产品的id")
-    @PutMapping("select.do")
+    @ApiImplicitParam(name = "productId", value = "要选中产品的id", paramType = "query")
+    @PutMapping("/select.do")
     public ResultResponse select(@RequestParam("productId") Integer productId,
                                  HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
@@ -149,8 +149,8 @@ public class CartController {
     }
 
     @ApiOperation(value = "取消选中用户购物车中的某种产品的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;取消选中用户购物车中的某种产品")
-    @ApiImplicitParam(name = "productId", value = "要取消选中产品的id")
-    @PutMapping("un_select.do")
+    @ApiImplicitParam(name = "productId", value = "要取消选中产品的id", paramType = "query")
+    @PutMapping("/un_select.do")
     public ResultResponse unSelect(@RequestParam("productId") Integer productId,
                                    HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
@@ -166,7 +166,7 @@ public class CartController {
     }
 
     @ApiOperation(value = "得到用户购物车中产品总数量的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;计算用户购物车中所有产品的总数量")
-    @GetMapping("get_cart_product_count.do")
+    @GetMapping("/get_cart_product_count.do")
     public ResultResponse getCartProductCount(HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
         if (StringUtils.isBlank(loginToken)) {

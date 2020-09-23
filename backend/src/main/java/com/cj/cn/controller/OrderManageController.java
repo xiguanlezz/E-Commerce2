@@ -2,12 +2,14 @@ package com.cj.cn.controller;
 
 import com.cj.cn.response.ResultResponse;
 import com.cj.cn.service.IOrderService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+@Api(tags = "后台订单模块")
 @RestController
 @RequestMapping("/manage/order/")
 public class OrderManageController {
@@ -16,10 +18,10 @@ public class OrderManageController {
 
     @ApiOperation(value = "后台分页查询订单的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台分页查询订单的信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", value = "当前页"),
-            @ApiImplicitParam(name = "pageSize", value = "页容量"),
+            @ApiImplicitParam(name = "pageNum", value = "当前页", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query"),
     })
-    @GetMapping("list.do")
+    @GetMapping("/list.do")
     public ResultResponse orderList(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
                                     @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         //权限验证全交给拦截器执行
@@ -27,20 +29,20 @@ public class OrderManageController {
     }
 
     @ApiOperation(value = "后台查看订单详情的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台通过订单id查看订单详情")
-    @ApiImplicitParam(name = "orderNo", value = "订单号")
-    @GetMapping("detail.do")
-    public ResultResponse detail(@RequestParam("orderNo") Long orderNo) {
+    @ApiImplicitParam(name = "orderNo", value = "订单号", paramType = "path")
+    @GetMapping("/{orderNo}")
+    public ResultResponse detail(@PathVariable("orderNo") Long orderNo) {
         //权限验证全交给拦截器执行
         return iOrderService.getManageDetail(orderNo);
     }
 
     @ApiOperation(value = "后台搜索订单的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台通过订单号分页搜索订单列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "orderNo", value = "订单号"),
-            @ApiImplicitParam(name = "pageNum", value = "当前页"),
-            @ApiImplicitParam(name = "pageSize", value = "页容量")
+            @ApiImplicitParam(name = "orderNo", value = "订单号", paramType = "query"),
+            @ApiImplicitParam(name = "pageNum", value = "当前页", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query")
     })
-    @GetMapping("search.do")
+    @GetMapping("/search.do")
     public ResultResponse search(@RequestParam("orderNo") Long orderNo,
                                  @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
                                  @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
@@ -49,8 +51,8 @@ public class OrderManageController {
     }
 
     @ApiOperation(value = "后台发货的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;后台发货")
-    @ApiImplicitParam(name = "orderNo", value = "订单号")
-    @PutMapping("send_goods.do")
+    @ApiImplicitParam(name = "orderNo", value = "订单号", paramType = "query")
+    @PutMapping("/send_goods.do")
     public ResultResponse orderSendGoods(@RequestParam("orderNo") Long orderNo) {
         //权限验证全交给拦截器执行
         return iOrderService.manageSendGoods(orderNo);

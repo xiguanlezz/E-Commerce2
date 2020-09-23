@@ -2,25 +2,24 @@ package com.cj.cn.controller.api;
 
 import com.cj.cn.response.ResultResponse;
 import com.cj.cn.service.IProductService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@Api(tags = "产品模块")
 @RestController
 @RequestMapping("/product/")
 public class ProductController {
     @Autowired
     private IProductService iProductService;
 
-    @ApiOperation(value = "查看商品详情接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;通过id查看商品详情")
-    @ApiImplicitParam(name = "productId", value = "产品id")
-    @GetMapping("detail.do")
-    public ResultResponse detail(@RequestParam("productId") Integer productId) {
+    @ApiOperation(value = "查看商品详情接口Restful", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;通过id查看商品详情")
+    @ApiImplicitParam(name = "productId", value = "产品id", paramType = "path")
+    @GetMapping("/{productId}")
+    public ResultResponse detailRestful(@PathVariable("productId") Integer productId) {
         return iProductService.getProductDetail(productId);
     }
 
@@ -32,7 +31,7 @@ public class ProductController {
             @ApiImplicitParam(name = "pageSize", value = "页容量"),
             @ApiImplicitParam(name = "orderBy", value = "排序规则")
     })
-    @GetMapping("list.do")
+    @GetMapping("/list.do")
     public ResultResponse list(@RequestParam(value = "keyword", required = false) String keyword,
                                @RequestParam(value = "categoryId", required = false) Integer categoryId,
                                @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,

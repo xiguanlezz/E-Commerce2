@@ -31,7 +31,7 @@ public class UserController {
             @ApiImplicitParam(name = "username", value = "用户名", paramType = "query"),
             @ApiImplicitParam(name = "password", value = "密码", paramType = "query")
     })
-    @RequestMapping("login.do")
+    @PostMapping("/login.do")
     public ResultResponse login(@RequestParam("username") String username,
                                 @RequestParam("password") String password,
                                 HttpSession session,
@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "退出接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前台用户退出接口")
-    @RequestMapping("logout.do")
+    @PostMapping("/logout.do")
     public ResultResponse logout(HttpServletRequest httpServletRequest,
                                  HttpServletResponse httpServletResponse) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
@@ -59,7 +59,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "注册接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前台用户注册接口")
-    @PostMapping("register.do")
+    @PostMapping("/register.do")
     public ResultResponse register(User user) {
         return iUserService.register(user);
     }
@@ -69,7 +69,7 @@ public class UserController {
             @ApiImplicitParam(name = "type", value = "要校验的参数类型, username表示校验的是用户名, email表示校验的是邮箱", paramType = "query"),
             @ApiImplicitParam(name = "str", value = "要校验的参数值", paramType = "query")
     })
-    @PostMapping("check_valid.do")
+    @PostMapping("/check_valid.do")
     public ResultResponse checkValid(@RequestParam("type") String type,
                                      @RequestParam("str") String str) {
         ResultResponse response = iUserService.checkValid(str, type);
@@ -80,7 +80,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "登录状态下获取当前用户信息接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前台已登录用户获取自己的用户信息")
-    @RequestMapping("get_information.do")
+    @PostMapping("/get_information.do")
     public ResultResponse getUserInfo(HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
         if (StringUtils.isBlank(loginToken)) {
@@ -97,7 +97,7 @@ public class UserController {
 
     @ApiOperation(value = "获取密保问题接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前台用户根据用户名查询对应的密保问题")
     @ApiImplicitParam(name = "username", value = "用户名", paramType = "query")
-    @PostMapping("forget_get_question.do")
+    @PostMapping("/forget_get_question.do")
     public ResultResponse forgetGetQuestion(@RequestParam("username") String username) {
         return iUserService.selectQuestion(username);
     }
@@ -108,7 +108,7 @@ public class UserController {
             @ApiImplicitParam(name = "question", value = "密保问题", paramType = "query"),
             @ApiImplicitParam(name = "answer", value = "密保问题的答案", paramType = "query")
     })
-    @RequestMapping("forget_check_answer.do")
+    @RequestMapping("/forget_check_answer.do")
     public ResultResponse forgetCheckAnswer(@RequestParam("username") String username,
                                             @RequestParam("question") String question,
                                             @RequestParam("answer") String answer) {
@@ -121,7 +121,7 @@ public class UserController {
             @ApiImplicitParam(name = "password", value = "新密码", paramType = "query"),
             @ApiImplicitParam(name = "forgetToken", value = "忘记密码中密保问题回答正确后返回的token", paramType = "query")
     })
-    @PostMapping("forget_reset_password.do")
+    @PostMapping("/forget_reset_password.do")
     public ResultResponse forgetResetPassword(@RequestParam("username") String username,
                                               @RequestParam("password") String password,
                                               @RequestParam("forgetToken") String forgetToken) {
@@ -133,7 +133,7 @@ public class UserController {
             @ApiImplicitParam(name = "passwordOld", value = "原始密码", paramType = "query"),
             @ApiImplicitParam(name = "passwordNew", value = "新密码", paramType = "query"),
     })
-    @PostMapping("reset_password.do")
+    @PostMapping("/reset_password.do")
     public ResultResponse resetPassword(@RequestParam("passwordOld") String passwordOld,
                                         @RequestParam("passwordNew") String passwordNew,
                                         HttpServletRequest httpServletRequest) {
@@ -150,7 +150,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "登录状态下更新用户信息的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前台用户中心更新用户基本信息")
-    @PostMapping("update_information.do")
+    @PostMapping("/update_information.do")
     public ResultResponse updateInformation(User user,
                                             HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);

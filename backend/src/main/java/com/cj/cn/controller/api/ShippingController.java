@@ -27,7 +27,7 @@ public class ShippingController {
     private StringRedisTemplate stringRedisTemplate;
 
     @ApiOperation(value = "增加一个地址的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;新增一个地址")
-    @PostMapping("add.do")
+    @PostMapping("/add.do")
     public ResultResponse add(Shipping shipping,
                               HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
@@ -43,9 +43,9 @@ public class ShippingController {
     }
 
     @ApiOperation(value = "删除一个地址的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;根据id删除一个地址")
-    @ApiImplicitParam(name = "shippingId", value = "地址id")
-    @DeleteMapping("del.do")
-    public ResultResponse del(@RequestParam("shippingId") Integer shippingId,
+    @ApiImplicitParam(name = "shippingId", value = "地址id", paramType = "path")
+    @DeleteMapping("/{shippingId}")
+    public ResultResponse del(@PathVariable("shippingId") Integer shippingId,
                               HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
         if (StringUtils.isBlank(loginToken)) {
@@ -60,7 +60,7 @@ public class ShippingController {
     }
 
     @ApiOperation(value = "修改地址的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;修改地址的某些信息")
-    @PutMapping("update.do")
+    @PutMapping("/update.do")
     public ResultResponse update(Shipping shipping,
                                  HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
@@ -76,9 +76,9 @@ public class ShippingController {
     }
 
     @ApiOperation(value = "查询某个地址详细信息的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;根据id查询一个地址的详细信息")
-    @ApiImplicitParam(name = "shippingId", value = "地址id")
-    @GetMapping("select.do")
-    public ResultResponse select(@RequestParam("shippingId") Integer shippingId,
+    @ApiImplicitParam(name = "shippingId", value = "地址id", paramType = "path")
+    @GetMapping("/{shippingId}")
+    public ResultResponse select(@PathVariable("shippingId") Integer shippingId,
                                  HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
         if (StringUtils.isBlank(loginToken)) {
@@ -94,10 +94,10 @@ public class ShippingController {
 
     @ApiOperation(value = "分页查询地址列表的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;分页查询出地址列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", value = "当前页"),
-            @ApiImplicitParam(name = "pageSize", value = "页容量")
+            @ApiImplicitParam(name = "pageNum", value = "当前页", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query")
     })
-    @GetMapping("list.do")
+    @GetMapping("/list.do")
     public ResultResponse list(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
                                @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
                                HttpServletRequest httpServletRequest) {

@@ -34,8 +34,8 @@ public class OrderController {
     private StringRedisTemplate stringRedisTemplate;
 
     @ApiOperation(value = "用户付款的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;用户使用支付宝进行付款")
-    @ApiImplicitParam(name = "orderNo", value = "订单号")
-    @PostMapping("pay.do")
+    @ApiImplicitParam(name = "orderNo", value = "订单号", paramType = "query")
+    @PostMapping("/pay.do")
     public ResultResponse pay(@RequestParam("orderNo") Long orderNo,
                               HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
@@ -52,7 +52,7 @@ public class OrderController {
     }
 
     @ApiOperation(value = "支付宝回调的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;支付宝回调")
-    @PostMapping("alipay_callback.do")
+    @PostMapping("/alipay_callback.do")
     public Object payCallback(HttpServletRequest httpServletRequest) {
         Map<String, String> params = new HashMap<>();
         Map<String, String[]> parameterMap = httpServletRequest.getParameterMap();     //支付宝回调回来的参数都在请求里面
@@ -85,8 +85,8 @@ public class OrderController {
     }
 
     @ApiOperation(value = "查看支付宝订单状态的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前端轮询, 查看支付宝订单状态")
-    @ApiImplicitParam(name = "orderNo", value = "订单号")
-    @PostMapping("query_order_pay_status.do")
+    @ApiImplicitParam(name = "orderNo", value = "订单号", paramType = "query")
+    @GetMapping("/query_order_pay_status.do")
     public ResultResponse queryOrderPayStatus(@RequestParam("orderNo") Long orderNo,
                                               HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
@@ -106,8 +106,8 @@ public class OrderController {
     }
 
     @ApiOperation(value = "用户下订单的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;生成订单表、订单明细表, 清空购物车并修改产品库存")
-    @ApiImplicitParam(name = "shippingId", value = "地址id")
-    @PostMapping("create.do")
+    @ApiImplicitParam(name = "shippingId", value = "地址id", paramType = "query")
+    @PostMapping("/create.do")
     public ResultResponse create(@RequestParam("shippingId") Integer shippingId,
                                  HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
@@ -123,8 +123,8 @@ public class OrderController {
     }
 
     @ApiOperation(value = "用户取消订单的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;修改订单状态为已取消")
-    @ApiImplicitParam(name = "orderNo", value = "订单号")
-    @PutMapping("cancel.do")
+    @ApiImplicitParam(name = "orderNo", value = "订单号", paramType = "query")
+    @PutMapping("/cancel.do")
     public ResultResponse cancel(@RequestParam("orderNo") Long orderNo,
                                  HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
@@ -140,7 +140,7 @@ public class OrderController {
     }
 
     @ApiOperation(value = "查看勾选产品详细信息的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;获取用户勾选的购物车中产品的详细信息")
-    @GetMapping("get_order_cart_product.do")
+    @GetMapping("/get_order_cart_product.do")
     public ResultResponse getOrderCartProduct(HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
         if (StringUtils.isBlank(loginToken)) {
@@ -155,9 +155,9 @@ public class OrderController {
     }
 
     @ApiOperation(value = "查看订单详情的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;通过订单号查看订单的详细信息")
-    @ApiImplicitParam(name = "orderNo", value = "订单号")
-    @GetMapping("detail.do")
-    public ResultResponse detail(@RequestParam("orderNo") Long orderNo,
+    @ApiImplicitParam(name = "orderNo", value = "订单号", paramType = "path")
+    @GetMapping("/{orderNo}")
+    public ResultResponse detail(@PathVariable("orderNo") Long orderNo,
                                  HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
         if (StringUtils.isBlank(loginToken)) {
@@ -176,7 +176,7 @@ public class OrderController {
             @ApiImplicitParam(name = "pageNum", value = "当前页"),
             @ApiImplicitParam(name = "pageSize", value = "页容量"),
     })
-    @GetMapping("list.do")
+    @GetMapping("/list.do")
     public ResultResponse list(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
                                @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
                                HttpServletRequest httpServletRequest) {

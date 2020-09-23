@@ -28,6 +28,7 @@ import com.cj.cn.vo.ShippingVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.asm.Advice;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -42,6 +43,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service("iOrderService")
 public class OrderServiceImpl implements IOrderService {
     private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
@@ -558,6 +560,46 @@ public class OrderServiceImpl implements IOrderService {
             return ResultResponse.ok("发货成功");
         } else {
             return ResultResponse.error("当前订单状态不是已付款状态, 无法发货");
+        }
+    }
+
+    @Override
+    public void closeOrder(int hour) {
+        Example exampleForOrder = new Example(Order.class);
+        Example.Criteria criteriaForOrder = exampleForOrder.createCriteria();
+        LocalDateTime time = LocalDateTime.now();
+        time.minusHours(hour);
+        criteriaForOrder.andLessThan("createTime", time);
+        criteriaForOrder.andEqualTo("status", Const.OrderStatusEnum.NO_PAY);
+        List<Order> orderList = orderMapper.selectByExample(exampleForOrder);
+        for (Order order : orderList) {
+            Long orderNo = order.getOrderNo();
+            Example exampleForOrderItem = new Example(OrderItem.class);
+            Example.Criteria criteriaForOrderItem = exampleForOrder.createCriteria();
+            criteriaForOrderItem.andEqualTo("orderNo", orderNo);
+            List<OrderItem> orderItemList = orderItemMapper.selectByExample(exampleForOrderItem);
+            for (OrderItem orderItem : orderItemList) {
+                Integer productId = orderItem.getProductId();
+                assert productId != null;
+                //使用InnoDB的行锁, 使用主键避免锁表
+                Integer stock = productMapper.selectStockByProductId(productId);
+
+                //考虑到关闭订单的时候, 产品已经被删除
+                if (stock == null) {
+                    continue;
+                }
+
+                Product product = new Product();
+                product.setId(productId).setStock(stock + orderItem.getQuantity());     //重新增加商品的库存
+                productMapper.updateByPrimaryKeySelective(product);
+            }
+
+            Example example = new Example(Order.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andEqualTo("id", order.getId());
+            order.setStatus(0);
+            orderMapper.updateByExampleSelective(order, example);   //设置订单状态为0即关闭订单
+            log.info("关闭订单 orderNo: {}", orderNo);
         }
     }
 }

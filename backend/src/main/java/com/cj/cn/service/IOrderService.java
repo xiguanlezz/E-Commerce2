@@ -100,4 +100,11 @@ public interface IOrderService {
      * @param orderNo 订单号
      */
     ResultResponse manageSendGoods(Long orderNo);
+
+    /**
+     * 关闭指定时间内未付款的订单
+     *
+     * @param hour 订单过期时间
+     */
+    void closeOrder(int hour);
 }

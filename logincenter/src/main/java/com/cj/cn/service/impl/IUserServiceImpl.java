@@ -2,6 +2,7 @@ package com.cj.cn.service.impl;
 
 import com.cj.cn.pojo.User;
 import com.cj.cn.service.IUserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,10 @@ public class IUserServiceImpl implements IUserService {
 
     @Override
     public User login(String username, String password) {
+        if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+            return null;
+        }
+
         String sql = "SELECT * FROM mmall_user WHERE username=? AND password = ?";
         Object[] params = new Object[]{username, password};
         User result = jdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> {

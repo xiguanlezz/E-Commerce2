@@ -31,7 +31,7 @@ public class UserController {
             @ApiImplicitParam(name = "username", value = "用户名", paramType = "query"),
             @ApiImplicitParam(name = "password", value = "密码", paramType = "query")
     })
-    @PostMapping("/login.do")
+    @GetMapping("/login.do")
     public ResultResponse login(@RequestParam("username") String username,
                                 @RequestParam("password") String password,
                                 HttpSession session,
@@ -133,7 +133,7 @@ public class UserController {
             @ApiImplicitParam(name = "passwordOld", value = "原始密码", paramType = "query"),
             @ApiImplicitParam(name = "passwordNew", value = "新密码", paramType = "query"),
     })
-    @PostMapping("/reset_password.do")
+    @GetMapping("/reset_password.do")
     public ResultResponse resetPassword(@RequestParam("passwordOld") String passwordOld,
                                         @RequestParam("passwordNew") String passwordNew,
                                         HttpServletRequest httpServletRequest) {
@@ -150,7 +150,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "登录状态下更新用户信息的接口", notes = "<span style='color:red;'>描述:</span>&nbsp;&nbsp;前台用户中心更新用户基本信息")
-    @PostMapping("/update_information.do")
+    @GetMapping("/update_information.do")
     public ResultResponse updateInformation(User user,
                                             HttpServletRequest httpServletRequest) {
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);

@@ -18,7 +18,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-@Order(1)
+@Order(2)
 public class AuthorityInterceptor implements HandlerInterceptor {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -35,9 +35,10 @@ public class AuthorityInterceptor implements HandlerInterceptor {
         String requestURL = httpServletRequest.getRequestURL().toString();  //获得请求的URL
 
         //如果是登录接口直接放行
-        if (StringUtils.equals(controllerName, "UserManageController") && StringUtils.equals(methodName, "login") && requestURL.contains("login")) {
-            return true;
-        }
+//        if (StringUtils.equals(controllerName, "UserManageController") && StringUtils.equals(methodName, "login") && requestURL.contains("login")) {
+//            //TODO 转发到登录中心
+//            return true;
+//        }
 
         User user = null;
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);

@@ -42,13 +42,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        //登录拦截器(暂时不用)
-//        registry.addInterceptor(loginInterceptor())
-//                .addPathPatterns("/**");
+        //登录拦截器(直接将请求达到登录中心), 因为业务的问题只拦截两个登录请求
+        registry.addInterceptor(loginInterceptor())
+                .addPathPatterns("/user/login.do")
+                .addPathPatterns("/manage/user/login.do")
+                .excludePathPatterns("logout.do")
+                .excludePathPatterns("register.do");
 
         //权限拦截器
         registry.addInterceptor(authorityInterceptor())
-                .addPathPatterns("/manage/**");
+                .addPathPatterns("/manage/**")
+                .excludePathPatterns("/manage/user/login.do");
 
         //重置session拦截器
         String[] excludePatterns = new String[]{"/user/login*", "/manage/user/login*", "/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**",

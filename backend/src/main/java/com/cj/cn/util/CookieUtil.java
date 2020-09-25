@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 public class CookieUtil {
-    private final static String COOKIE_DOMAIN = "mmall.com";   //只有下一级域名能读到cookie
+    private final static String COOKIE_DOMAIN = "www.mmall.com";   //只有下一级域名能读到cookie
     private final static String COOKIE_NAME = "mmall_login_token";
 
     //读取请求中的cookie信息并进行校验

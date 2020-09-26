@@ -3,7 +3,6 @@ package com.cj.cn.common;
 import com.cj.cn.exception.NoEnumException;
 import com.google.common.collect.Sets;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class Const {
@@ -144,5 +143,9 @@ public class Const {
             }
             throw new NoEnumException("没有找到对应的枚举");
         }
+    }
+
+    public interface REDIS_LOCK {
+        String CLOSE_ORDER_TASK_LOCK = "CLOSE_ORDER_TASK_LOCK";   //关闭订单的分布式锁
     }
 }
